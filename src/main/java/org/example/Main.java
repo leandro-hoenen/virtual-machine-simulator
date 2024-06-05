@@ -2,6 +2,8 @@ package org.example;
 
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
+import org.cloudsimplus.cloudlets.Cloudlet;
+import org.cloudsimplus.cloudlets.CloudletExecution;
 import org.cloudsimplus.cloudlets.CloudletSimple;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.DatacenterSimple;
@@ -17,67 +19,80 @@ import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toCollection;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
 
     public static void main(String[] args) {
-        //Enables just some level of logging.
-        //Make sure to import org.cloudsimplus.util.Log;
-        //Log.setLevel(ch.qos.logback.classic.Level.WARN);
-
-        //Creates a CloudSimPlus object to initialize the simulation.
-        var simulation = new CloudSimPlus();
-
-        //Creates a Broker that will act on behalf of a cloud user (customer).
-        var broker0 = new DatacenterBrokerSimple(simulation);
-
-        //Host configuration
+        // Datacenter parameters
         int hostPes = 64;
         long peSimpleMips = 20000;
         long ram = 100000; //in Megabytes
         long storage = 1000000; //in Megabytes
         long bw = 1000000; //in Megabits/s
 
-        //Creates one host with a specific list of CPU cores (PEs).
-        //Uses a PeProvisionerSimple by default to provision PEs for VMs
-        //Uses ResourceProvisionerSimple by default for RAM and BW provisioning
-        //Uses VmSchedulerSpaceShared by default for VM scheduling
+        // Virtual machine parameters
+        int vmPes = 3; //number of vCPUs
+        long vmMips = 15000; //in Million Instructions per Second
+        long vmRam = 2000; //in Megabytes
+        long vmBw = 2000; //in Megabits/s
+        long vmSize = 10000; //in Megabytes
 
+        // Virtual machine workload
+        double iniVmLoad = 1; //Initial VM load
+        long cloudletLength = 1000000; //in Million Instructions
+        int cloudletPes = 3; //number of threads used by Cloudlet
+
+
+        // Create datacenter and hosts
+        var simulation = new CloudSimPlus();
+        var broker0 = new DatacenterBrokerSimple(simulation);
+        var host0 = createHost(hostPes, peSimpleMips, ram, storage, bw);
+        var dc0 = new DatacenterSimple(simulation, List.of(host0));
+
+        // Create VM
+        var vm0 = createVm(vmMips, vmPes, vmRam, vmBw, vmSize);
+        broker0.submitVmList(List.of(vm0));
+
+        // Set workload
+        var utilizationModel = new DistributedUtilizationModel(2000, 0.3, 0.3);
+        var cloudlet0 = new CloudletSimple(cloudletLength, cloudletPes, utilizationModel);
+        utilizationModel.setCloudlet(cloudlet0);
+        /*
+        var cpuUtlizationModel = new UtilizationModelDynamic(0.3);
+        var ramUtilizationModel = new UtilizationModelDynamic(0.3);
+        var bwUtilizationModel = new UtilizationModelDynamic(0.3);
+
+        var cloudlet0 = new CloudletSimple(cloudletLength, cloudletPes)
+                .setFileSize(20000)
+                .setOutputSize(20000)
+                .setUtilizationModelCpu(cpuUtlizationModel)
+                .setUtilizationModelRam(ramUtilizationModel)
+                .setUtilizationModelBw(bwUtilizationModel);
+         */
+        broker0.submitCloudletList(List.of(cloudlet0));
+
+        // Start simulation
+        simulation.start();
+
+        new CloudletsTableBuilder(broker0.getCloudletFinishedList()).build();
+        double executionTime = cloudlet0.getTotalExecutionTime();
+
+        // System.out.println(executionTime);
+        // new CloudletSimple(100000, 10).setUtilizationModelBw();
+    }
+
+    private static HostSimple createHost(int hostPes, long peSimpleMips, long ram, long storage, long bw) {
         final List<Pe> peList =
                 IntStream.range(0, hostPes)
                         .mapToObj(i -> new PeSimple(peSimpleMips))
                         .collect(toCollection(() -> new ArrayList<>(hostPes)));
 
-        var host0 = new HostSimple(ram, bw, storage, peList);
+        return new HostSimple(ram, bw, storage, peList);
+    }
 
-        //Creates a Datacenter with a list of Hosts.
-        //Uses a VmAllocationPolicySimple by default to allocate VMs
-        var dc0 = new DatacenterSimple(simulation, List.of(host0));
-
-        //Creates one VM with one CPU core to run applications.
-        //Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
-        var vm0 = new VmSimple(2000, 1);
-        vm0.setRam(1000).setBw(1000).setSize(1000);
-
-        //Creates Cloudlets that represent applications to be run inside a VM.
-        //It has a length of 1000 Million Instructions (MI) and requires 1 CPU core
-        //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
-        var utilizationModel = new UtilizationModelDynamic(0.5);
-        var cloudlet0 = new CloudletSimple(1000000, 1, utilizationModel);
-        var cloudlet1 = new CloudletSimple(1000000, 1, utilizationModel);
-        var cloudletList = List.of(cloudlet0, cloudlet1);
-
-        broker0.submitVmList(List.of(vm0));
-        broker0.submitCloudletList(cloudletList);
-
-        /*Starts the simulation and waits all cloudlets to be executed, automatically
-        stopping when there is no more events to process.*/
-        simulation.start();
-
-/*Prints the results when the simulation is over
-(you can use your own code here to print what you want from this cloudlet list).*/
-        new CloudletsTableBuilder(broker0.getCloudletFinishedList()).build();
+    private static VmSimple createVm(long mips, long pes, long ram, long bw, long size) {
+        var vm = new VmSimple(mips, pes);
+        vm.setRam(ram).setBw(bw).setSize(size);
+        return vm;
     }
 
 }
