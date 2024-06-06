@@ -32,7 +32,7 @@ public class Main {
         // Virtual machine parameters
         int vmPes = 3; //number of vCPUs
         long vmMips = 15000; //in Million Instructions per Second
-        long vmRam = 2000; //in Megabytes
+        long vmRam = 1800; //in Megabytes
         long vmBw = 2000; //in Megabits/s
         long vmSize = 10000; //in Megabytes
 
@@ -53,21 +53,9 @@ public class Main {
         broker0.submitVmList(List.of(vm0));
 
         // Set workload
-        var utilizationModel = new DistributedUtilizationModel(2000, 0.3, 0.3);
+        var utilizationModel = new DistributedUtilizationModel(1700, 0.3, 0.01);
         var cloudlet0 = new CloudletSimple(cloudletLength, cloudletPes, utilizationModel);
         utilizationModel.setCloudlet(cloudlet0);
-        /*
-        var cpuUtlizationModel = new UtilizationModelDynamic(0.3);
-        var ramUtilizationModel = new UtilizationModelDynamic(0.3);
-        var bwUtilizationModel = new UtilizationModelDynamic(0.3);
-
-        var cloudlet0 = new CloudletSimple(cloudletLength, cloudletPes)
-                .setFileSize(20000)
-                .setOutputSize(20000)
-                .setUtilizationModelCpu(cpuUtlizationModel)
-                .setUtilizationModelRam(ramUtilizationModel)
-                .setUtilizationModelBw(bwUtilizationModel);
-         */
         broker0.submitCloudletList(List.of(cloudlet0));
 
         // Start simulation

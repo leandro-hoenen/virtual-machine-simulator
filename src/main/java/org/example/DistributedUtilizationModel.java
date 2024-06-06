@@ -5,19 +5,15 @@ import org.cloudsimplus.utilizationmodels.UtilizationModelAbstract;
 import org.cloudsimplus.vms.Vm;
 
 public class DistributedUtilizationModel extends UtilizationModelAbstract {
-    private final double ramUtil;
-    private final double ramThresholdRate;
-    private final double ramPlateauRate;
     private final double alpha; // Factor representing the influence of RAM utilization on performance improvement.
-    private final double beta; // Factor representing the rate of performance degradation when RAM is over-utilized.
+    private final double steepness; // Steepness of the logistic function
+    private final double ramUtil;
     private Cloudlet cloudlet;
 
-    public DistributedUtilizationModel(double ramUtil, double alpha, double beta) {
-        this.ramUtil = ramUtil;
-        this.ramThresholdRate = 1.3; // Initial threshold set to 120% of ramAssigned
-        this.ramPlateauRate = 1.5; // represents the maximum effective RAM beyond which additional RAM does not improve performance.
+    public DistributedUtilizationModel(double ramUtil, double alpha, double steepness) {
         this.alpha = alpha;
-        this.beta = beta;
+        this.steepness = steepness;
+        this.ramUtil = ramUtil;
     }
 
     public void setCloudlet(Cloudlet cloudlet) {
@@ -26,24 +22,33 @@ public class DistributedUtilizationModel extends UtilizationModelAbstract {
 
     @Override
     protected double getUtilizationInternal(double v) {
-        // RAM parameters
+// RAM parameters
         Vm vm = this.cloudlet.getVm();
-        double ramTotal = 4;
         double ramAssigned = vm.getRam().getCapacity();
-        double execTimeBase = 1;
-        double execTimeAdjusted;
-        double ramThreshold = this.ramThresholdRate * ramAssigned;
-        double ramPlateau = this.ramPlateauRate * ramUtil;
+        double execTimeBase = 1; // Implement this method to get the base execution time
+
+        // Logistic function parameters
+        double midpointImprovement = ramAssigned;
 
         // Adjust execution time based on RAM utilization
-        if (ramUtil < ramAssigned && ramAssigned < ramPlateau) {
-            execTimeAdjusted = Math.max(0.1, execTimeBase * (1 - alpha * (ramUtil / Math.min(ramAssigned, ramPlateau))));
-        } else if (ramUtil <= ramThreshold && ramAssigned != ramUtil) {
-            execTimeAdjusted = Math.max(0.1, execTimeBase);
+        double execTimeAdjusted;
+
+        if (ramUtil <= ramAssigned) {
+            execTimeAdjusted = execTimeBase * (1 - alpha * logisticFunction(ramUtil, midpointImprovement, steepness));
         } else {
-            execTimeAdjusted = Math.min(1, execTimeBase * (1 + beta * ((ramUtil - ramThreshold) / (ramTotal - ramThreshold))));
+            // simple punsihment for over-utilization
+            execTimeAdjusted = 0.1;
         }
 
+        // Ensure execTimeAdjusted is within [0.1, 1]
+        execTimeAdjusted = Math.max(0.1, Math.min(1, execTimeAdjusted));
+
+        System.out.println(execTimeAdjusted);
         return execTimeAdjusted;
     }
+
+    private double logisticFunction(double x, double midpoint, double steepness) {
+        return 1 / (1 + Math.exp(-steepness * (x - midpoint)));
+    }
+
 }
