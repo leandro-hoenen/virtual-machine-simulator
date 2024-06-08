@@ -18,18 +18,19 @@ import static java.util.stream.Collectors.toCollection;
 
 public class CloudSimRunner {
 
-    public void runSimulation() {
+    public double runSimulation(long vmPes, long ram) {
         // Datacenter parameters
         int hostPes = 64;
         long peSimpleMips = 20000;
-        long ram = 100000; //in Megabytes
+        // long ram = 100000; //in Megabytes
         long storage = 1000000; //in Megabytes
         long bw = 1000000; //in Megabits/s
+        long hostRam = Math.round(ram * 1.2); //in Megabytes
 
         // Virtual machine parameters
-        int vmPes = 3; //number of vCPUs
+        // int vmPes = 3; //number of vCPUs
         long vmMips = 15000; //in Million Instructions per Second
-        long vmRam = 1800; //in Megabytes
+        long vmRam = ram; //in Megabytes
         long vmBw = 2000; //in Megabits/s
         long vmSize = 10000; //in Megabytes
 
@@ -61,7 +62,9 @@ public class CloudSimRunner {
         new CloudletsTableBuilder(broker0.getCloudletFinishedList()).build();
         double executionTime = cloudlet0.getTotalExecutionTime();
 
-        // System.out.println(executionTime);
+
+        System.out.println(executionTime);
+        return executionTime;
         // new CloudletSimple(100000, 10).setUtilizationModelBw();
     }
 
