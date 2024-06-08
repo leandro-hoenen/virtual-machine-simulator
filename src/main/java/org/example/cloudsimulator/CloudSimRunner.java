@@ -62,10 +62,7 @@ public class CloudSimRunner {
         new CloudletsTableBuilder(broker0.getCloudletFinishedList()).build();
         double executionTime = cloudlet0.getTotalExecutionTime();
 
-
-        System.out.println(executionTime);
         return executionTime;
-        // new CloudletSimple(100000, 10).setUtilizationModelBw();
     }
 
     private static HostSimple createHost(int hostPes, long peSimpleMips, long ram, long storage, long bw) {

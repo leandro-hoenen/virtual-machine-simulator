@@ -11,8 +11,8 @@ public class Main {
         final double c2 = 1.496180; //Social coefficient
         final double w = 0.729844;
         final double[] range = new double[]{1, 10}; //Range of values for the problem
-        PSOimplementation pso = new PSOimplementation(numDimensions, numParticles, maxIterations, c1, c2, w, range);
-        pso.optimize();
+        // PSOimplementation pso = new PSOimplementation(numDimensions, numParticles, maxIterations, c1, c2, w, range);
+        //pso.optimize();
         // CloudSimRunner cloudSimRunner = new CloudSimRunner();
         // cloudSimRunner.runSimulation();
     }
