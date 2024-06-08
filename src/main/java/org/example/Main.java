@@ -4,9 +4,9 @@ import org.example.pso.PSOimplementation;
 public class Main {
 
     public static void main(String[] args) {
-        int numDimensions = 30; //Number of dimensions for problem
+        int numDimensions = 2; //Number of dimensions for problem
         int numParticles = 30; //Number of particles in swarm
-        int maxIterations = 10; //Max number of iterations
+        int maxIterations = 100; //Max number of iterations
         final double c1 = 1.496180; //Cognitive coefficient
         final double c2 = 1.496180; //Social coefficient
         final double w = 0.729844;

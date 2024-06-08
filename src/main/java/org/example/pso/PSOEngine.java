@@ -123,11 +123,15 @@ public class PSOEngine {
      */
 
     public void updatePosition(Particle particle) {
-        //Since new position is ALWAYS calculated after calculating new velocity, it is okay to just add old position to the current velocity (as velocity would have already been updated).
-        for (int i=0; i<numDimensions; i++) {
-            particle.position[i] = particle.position[i]+particle.velocity[i];
+        for (int i = 0; i < numDimensions; i++) {
+            particle.position[i] += particle.velocity[i];
+            // Boundary check to ensure position stays within the defined range
+            if (particle.position[i] < min) {
+                particle.position[i] = min;
+            } else if (particle.position[i] > max) {
+                particle.position[i] = max;
+            }
         }
-
     }
 
     /**
