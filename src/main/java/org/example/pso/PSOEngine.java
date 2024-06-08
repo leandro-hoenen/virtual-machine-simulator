@@ -12,14 +12,18 @@ public class PSOEngine {
     double c1 = 1.496180; //Cognitive coefficient
     double c2 = 1.496180; //Social coefficient
     double w = 0.729844; //Inertia coefficient
+    double min = 1;
+    double max = 10;//Range of values for the problem
 
-    public PSOEngine (int numDimensions, int numParticles, int maxIterations, double c1, double c2, double w ) {
+    public PSOEngine (int numDimensions, int numParticles, int maxIterations, double c1, double c2, double w, double min, double max) {
         this.numDimensions = numDimensions;
         this.numParticles = numParticles;
         this.maxIterations = maxIterations;
         this.c1 = c1;
         this.c2 = c2;
         this.w = w;
+        this.min = min;
+        this.max = max;
     }
 
 
@@ -35,7 +39,8 @@ public class PSOEngine {
             double[] velocities = new double [numDimensions];
             //For each dimension of the particle assign a random x value [-5.12,5.12] and velocity=0
             for (int j=0; j<numDimensions; j++) {
-                positions[j] = ((Math.random()* ((5.12-(-5.12)))) - 5.12);
+                positions[j] = (Math.random() * ((max - min))) + min;
+                // positions[j] = ((Math.random()* ((5.12-(-5.12)))) - 5.12);
                 velocities[j] = 0;
             }
             //Create the particle

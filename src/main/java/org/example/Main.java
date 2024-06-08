@@ -30,7 +30,7 @@ public class Main {
         final double c1 = 1.496180; //Cognitive coefficient
         final double c2 = 1.496180; //Social coefficient
         final double w = 0.729844;
-        PSOimplementation pso = new PSOimplementation(numDimensions, numParticles, maxIterations, c1, c2, w);
+        PSOimplementation pso = new PSOimplementation(numDimensions, numParticles, maxIterations, c1, c2, w, new double[]{1, 10});
         pso.optimize();
         // CloudSimRunner cloudSimRunner = new CloudSimRunner();
         // cloudSimRunner.runSimulation();
