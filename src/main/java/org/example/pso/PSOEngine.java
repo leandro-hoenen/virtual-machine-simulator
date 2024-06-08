@@ -1,5 +1,7 @@
 package org.example.pso;
 
+import org.example.cloudsimulator.CloudSimRunner;
+
 /**
  * Class representing the PSO Engine. This class implements all the necessary methods for initializing the swarm,
  * updating the velocity and position vectors, determining the fitness of particles and finding the best particle.
@@ -152,11 +154,18 @@ public class PSOEngine {
      */
     public double evaluateFitness(double[] positions) {
         double fitness = 0;
+        CloudSimRunner cloudSimRunner = new CloudSimRunner();
+        /*
         for (int i=0; i<numDimensions; i++) {
             fitness = fitness + (Math.pow(positions[i],2)-(10*Math.cos(2*Math.PI*positions[i])));
         }
 
         fitness = fitness + (10*numDimensions);
+         */
+        long vCPUs = (long) Math.round(positions[0]);
+        long ram = (long) Math.round(positions[1] * 1000); // scale to MB
+        double executionTime = cloudSimRunner.runSimulation(vCPUs, ram);
+        fitness = executionTime;
         return fitness;
     }
 }
