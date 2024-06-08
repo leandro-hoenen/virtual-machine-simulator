@@ -13,6 +13,7 @@ import org.cloudsimplus.resources.PeSimple;
 import org.cloudsimplus.utilizationmodels.UtilizationModelDynamic;
 import org.cloudsimplus.vms.VmSimple;
 import org.example.cloudsimulator.CloudSimRunner;
+import org.example.pso.PSOimplementation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +24,16 @@ import static java.util.stream.Collectors.toCollection;
 public class Main {
 
     public static void main(String[] args) {
-        CloudSimRunner cloudSimRunner = new CloudSimRunner();
-        cloudSimRunner.runSimulation();
+        int numDimensions = 30; //Number of dimensions for problem
+        int numParticles = 30; //Number of particles in swarm
+        int maxIterations = 10000; //Max number of iterations
+        final double c1 = 1.496180; //Cognitive coefficient
+        final double c2 = 1.496180; //Social coefficient
+        final double w = 0.729844;
+        PSOimplementation pso = new PSOimplementation(numDimensions, numParticles, maxIterations, c1, c2, w);
+        pso.optimize();
+        // CloudSimRunner cloudSimRunner = new CloudSimRunner();
+        // cloudSimRunner.runSimulation();
     }
 
 }
