@@ -1,4 +1,4 @@
-package org.example;
+package org.example.cloudsimulator;
 
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.utilizationmodels.UtilizationModelAbstract;
