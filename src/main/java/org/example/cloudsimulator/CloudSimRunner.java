@@ -36,8 +36,8 @@ public class CloudSimRunner {
 
         // Virtual machine workload
         double iniVmLoad = 1; //Initial VM load
-        long cloudletLength = 1000000; //in Million Instructions
-        int cloudletPes = 3; //number of threads used by Cloudlet
+        long cloudletLength = 2000000; //in Million Instructions
+        int cloudletPes = 4; //number of threads used by Cloudlet
 
 
         // Create datacenter and hosts
@@ -51,7 +51,7 @@ public class CloudSimRunner {
         broker0.submitVmList(List.of(vm0));
 
         // Set workload
-        var utilizationModel = new DistributedUtilizationModel(1700, 0.3, 0.01);
+        var utilizationModel = new DistributedUtilizationModel(4000, 0.3, 0.01);
         var cloudlet0 = new CloudletSimple(cloudletLength, cloudletPes, utilizationModel);
         utilizationModel.setCloudlet(cloudlet0);
         broker0.submitCloudletList(List.of(cloudlet0));
