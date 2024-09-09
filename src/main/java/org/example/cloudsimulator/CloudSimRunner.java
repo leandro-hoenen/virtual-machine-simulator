@@ -18,51 +18,51 @@ import static java.util.stream.Collectors.toCollection;
 
 public class CloudSimRunner {
 
-    public double runSimulation(long vmPes, long ram) {
+    public double runSimulation(long vmPes, long ramAssigned) {
         // Datacenter parameters
         int hostPes = 64;
-        long peSimpleMips = 20000;
-        // long ram = 100000; //in Megabytes
-        long storage = 1000000; //in Megabytes
-        long bw = 1000000; //in Megabits/s
-        long hostRam = Math.round(ram * 1.2); //in Megabytes
+        long hostPeSimpleMips = 20000;
+        long hostStorage = 1000000; //in Megabytes
+        long hostBw = 1000000; //in Megabits/s
+        long hostRam = Math.round(ramAssigned * 1.2); //in Megabytes
 
         // Virtual machine parameters
-        // int vmPes = 3; //number of vCPUs
         long vmMips = 15000; //in Million Instructions per Second
-        long vmRam = ram; //in Megabytes
         long vmBw = 2000; //in Megabits/s
         long vmSize = 10000; //in Megabytes
 
         // Virtual machine workload
-        double iniVmLoad = 1; //Initial VM load
         long cloudletLength = 2000000; //in Million Instructions
         int cloudletPes = 4; //number of threads used by Cloudlet
+        int cloudletRAM = 4000; // RAMutil of VM in MB
 
+        // Set RAM performance weighting and factors
+        double ramPerformanceWeight = 0.3;
+        double ramSteepnessFactor = 0.01;
+        double swapPartitionDecayConstant = 0.8;
 
         // Create datacenter and hosts
         var simulation = new CloudSimPlus();
         var broker0 = new DatacenterBrokerSimple(simulation);
-        var host0 = createHost(hostPes, peSimpleMips, ram, storage, bw);
+        var host0 = createHost(hostPes, hostPeSimpleMips, hostRam, hostStorage, hostBw);
         var dc0 = new DatacenterSimple(simulation, List.of(host0));
 
         // Create VM
-        var vm0 = createVm(vmMips, vmPes, vmRam, vmBw, vmSize);
+        var vm0 = createVm(vmMips, vmPes, ramAssigned, vmBw, vmSize);
         broker0.submitVmList(List.of(vm0));
 
         // Set workload
-        var utilizationModel = new DistributedUtilizationModel(4000, 0.3, 0.01);
-        var cloudlet0 = new CloudletSimple(cloudletLength, cloudletPes, utilizationModel);
-        utilizationModel.setCloudlet(cloudlet0);
-        broker0.submitCloudletList(List.of(cloudlet0));
+        var utilizationModel = new DistributedUtilizationModel(cloudletRAM, ramPerformanceWeight, ramSteepnessFactor, swapPartitionDecayConstant);
+        var cloudlet = new CloudletSimple(cloudletLength, cloudletPes, utilizationModel);
+        utilizationModel.setCloudlet(cloudlet);
+        broker0.submitCloudletList(List.of(cloudlet));
 
         // Start simulation
         simulation.start();
 
         new CloudletsTableBuilder(broker0.getCloudletFinishedList()).build();
-        double executionTime = cloudlet0.getTotalExecutionTime();
 
-        return executionTime;
+        return cloudlet.getTotalExecutionTime();
     }
 
     private static HostSimple createHost(int hostPes, long peSimpleMips, long ram, long storage, long bw) {
