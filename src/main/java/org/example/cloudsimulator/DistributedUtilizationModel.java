@@ -44,7 +44,8 @@ public class DistributedUtilizationModel extends UtilizationModelAbstract {
         // Ensure that the adjusted execution time factor is within [0.1, 1]
         adjustedExecutionTimeFactor = Math.max(0.1, Math.min(1, adjustedExecutionTimeFactor));
 
-        System.out.println(adjustedExecutionTimeFactor); // Optional: Print for debugging
+        // Optional: Print for debugging
+        // System.out.println(adjustedExecutionTimeFactor);
         return adjustedExecutionTimeFactor;
     }
 
