@@ -40,7 +40,6 @@ public class DistributedUtilizationModel extends UtilizationModelAbstract {
             // RAM utilization exceeds assigned limits, use SPPETFM model
             adjustedExecutionTimeFactor = calculateSPPETFM(baseExecutionTimeFactor, ramPerformanceWeight, decayConstant, ramUtilization, assignedRam);
         }
-
         // Ensure that the adjusted execution time factor is within [0.1, 1]
         adjustedExecutionTimeFactor = Math.max(0.1, Math.min(1, adjustedExecutionTimeFactor));
 

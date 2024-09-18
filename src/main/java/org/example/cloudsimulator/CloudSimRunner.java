@@ -32,14 +32,14 @@ public class CloudSimRunner {
         long vmSize = 10000; //in Megabytes
 
         // Virtual machine workload
-        long cloudletLength = 2000000; //in Million Instructions
-        int cloudletPes = 4; //number of threads used by Cloudlet
-        int cloudletRAM = 4000; // RAMutil of VM in MB
+        long cloudletLength = 10000000; //in Million Instructions
+        int cloudletPes = 18; //number of threads used by Cloudlet
+        int cloudletRAM = 17300; // RAMutil of VM in MB
 
         // Set RAM performance weighting and factors
         double ramPerformanceWeight = 0.3;
         double ramSteepnessFactor = 0.01;
-        double swapPartitionDecayConstant = 0.8;
+        double swapPartitionDecayConstant = 1.5;
 
         // Create datacenter and hosts
         var simulation = new CloudSimPlus();
